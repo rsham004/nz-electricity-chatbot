@@ -1,8 +1,16 @@
 """Strands Agent for electricity data queries."""
 import os
+import logging
 from typing import Dict, Any
 from strands import Agent, tool
-from src.tools.electricity_api import (
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
+from tools.electricity_api import (
     get_current_generation,
     get_spot_prices,
     get_renewable_percentage,
@@ -84,13 +92,22 @@ class ElectricityAgent:
     
     async def query(self, question: str) -> str:
         """Process a user query and return response."""
+        logger.info(f"🤖 Agent received query: {question}")
+        
         if not self.agent:
+            logger.info("🔧 Initializing agent...")
             await self.initialize()
         
         try:
+            logger.info("📤 Sending query to agent...")
             response = await self.agent.invoke_async(question)
-            return response.content if hasattr(response, 'content') else str(response)
+            result = response.content if hasattr(response, 'content') else str(response)
+            logger.info(f"✅ Agent response: {result}")
+            return result
         except Exception as e:
+            logger.error(f"❌ Agent error: {str(e)}")
+            import traceback
+            logger.error(f"📋 Full traceback: {traceback.format_exc()}")
             return f"I'm sorry, I encountered an error while processing your request. Please try again later."
 
 

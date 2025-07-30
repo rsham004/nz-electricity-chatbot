@@ -2,9 +2,17 @@
 import httpx
 from typing import Dict, Any
 import os
+import logging
 from dotenv import load_dotenv
 
 load_dotenv()
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
 # API endpoints (using public em6 data)
 EM6_BASE_URL = "https://api.em6.co.nz/v1"
@@ -22,14 +30,21 @@ def get_current_generation() -> Dict[str, Any]:
         # Using em6 public API endpoint
         url = f"{EM6_BASE_URL}/generation/current"
         
+        logger.info(f"🔌 Making API request to: {url}")
+        
         # Make request
         response = httpx.get(url, timeout=10.0)
         
+        logger.info(f"📊 API Response - Status: {response.status_code}")
+        
         if response.status_code == 200:
-            return response.json()
+            data = response.json()
+            logger.info(f"✅ Successfully fetched generation data: {data}")
+            return data
         else:
+            logger.warning(f"⚠️  API returned status {response.status_code}, using mock data")
             # Return mock data for development
-            return {
+            mock_data = {
                 "timestamp": "2025-07-30T12:00:00Z",
                 "total_generation_mw": 5000,
                 "generation_by_type": {
@@ -40,7 +55,10 @@ def get_current_generation() -> Dict[str, Any]:
                     "solar": 100
                 }
             }
+            logger.info(f"📝 Using mock data: {mock_data}")
+            return mock_data
     except httpx.RequestError as e:
+        logger.error(f"❌ API request failed: {str(e)}")
         raise Exception(f"API request failed: {str(e)}")
 
 
@@ -54,13 +72,20 @@ def get_spot_prices() -> Dict[str, Any]:
     try:
         url = f"{EM6_BASE_URL}/prices/spot/current"
         
+        logger.info(f"💰 Making price API request to: {url}")
+        
         response = httpx.get(url, timeout=10.0)
         
+        logger.info(f"📊 Price API Response - Status: {response.status_code}")
+        
         if response.status_code == 200:
-            return response.json()
+            data = response.json()
+            logger.info(f"✅ Successfully fetched price data: {data}")
+            return data
         else:
+            logger.warning(f"⚠️  Price API returned status {response.status_code}, using mock data")
             # Return mock data for development
-            return {
+            mock_data = {
                 "timestamp": "2025-07-30T12:00:00Z",
                 "prices": {
                     "Auckland": 150.50,
@@ -69,7 +94,10 @@ def get_spot_prices() -> Dict[str, Any]:
                     "Dunedin": 143.90
                 }
             }
+            logger.info(f"📝 Using mock price data: {mock_data}")
+            return mock_data
     except httpx.RequestError as e:
+        logger.error(f"❌ Price API request failed: {str(e)}")
         raise Exception(f"API request failed: {str(e)}")
 
 

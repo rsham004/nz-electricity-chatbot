@@ -2,7 +2,7 @@
 import streamlit as st
 import asyncio
 from typing import Dict, Any, List
-from src.agents.electricity_agent import create_electricity_agent
+from agents.mock_electricity_agent import create_mock_electricity_agent as create_electricity_agent
 
 
 def initialize_chat():
