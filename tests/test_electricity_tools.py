@@ -74,10 +74,10 @@ class TestElectricityTools:
         
         result = get_renewable_percentage(generation_data)
         
-        # Renewable: hydro + wind + geothermal + solar = 3600
+        # Renewable: hydro + wind + geothermal + solar = 3000+800+700+100 = 4600
         # Total: 5000
-        # Percentage: 3600/5000 * 100 = 72%
-        assert result == 90.0
+        # Percentage: 4600/5000 * 100 = 92%
+        assert result == 92.0
     
     def test_api_error_handling(self):
         """Test error handling for API failures."""
